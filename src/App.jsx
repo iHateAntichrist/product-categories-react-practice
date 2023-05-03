@@ -41,13 +41,15 @@ export const App = () => {
     return strLower.includes(substrLower);
   }
 
-  const searchFilter = (input) => {
-    const { value } = input.target;
+  const searchFilter = (product) => {
+    const { name } = product;
 
-    return isIncludes(value, searchInput);
+    return isIncludes(name, searchInput);
   };
 
-  const productsFilteredBySearch = products.filter(searchFilter);
+  console.log(searchFilter(products));
+
+  const productsFilteredBySearch = products.filter(searchFilter(products));
 
   // const visibleProducts = getFilteredProducts(selectedUser);
 
@@ -88,7 +90,7 @@ export const App = () => {
                   className="input"
                   placeholder="Search"
                   onChange={event => setSearchInput(event.target.value)}
-                  // value="qwe"
+                  value={searchInput}
                 />
 
                 <span className="icon is-left">
