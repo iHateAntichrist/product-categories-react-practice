@@ -1,5 +1,7 @@
-/* eslint-disable jsx-a11y/accessible-emoji */
+/* eslint-disable max-len */
+/* eslint-disable arrow-body-style */
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import './App.scss';
 
 import usersFromServer from './api/users';
@@ -19,39 +21,41 @@ const products = productsFromServer.map((product) => {
     ...product,
     categoryName: category.title,
     userName: user.name,
+    categoryIcon: category.icon,
+    userSex: user.sex,
+    userId: user.id,
   };
 });
 
-// const getFilteredProducts = (selectedUser) => {
-//   if (selectedUser) {
-//     return products.filter(product => product.userName === selectedUser.name);
-//   }
-
-//   return products;
-// };
-
 export const App = () => {
-  // const [selectedUser, setSelectedUser] = useState(null);
-  const [searchInput, setSearchInput] = useState('');
+  const [query, setQuery] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
-  function isIncludes(str, substr) {
-    const strLower = str.toLowerCase();
-    const substrLower = substr.toLowerCase().trim();
+  const handleChange = (userId) => {
+    const filtered = products.filter(product => product.userId === userId);
 
-    return strLower.includes(substrLower);
-  }
-
-  const searchFilter = (product) => {
-    const { name } = product;
-
-    return isIncludes(name, searchInput);
+    setFilteredProducts(filtered);
+    setSelectedUserId(userId);
   };
 
-  console.log(searchFilter(products));
+  const filterByquery = (event) => {
+    const { value } = event.target;
 
-  const productsFilteredBySearch = products.filter(searchFilter(products));
+    setQuery(value);
 
-  // const visibleProducts = getFilteredProducts(selectedUser);
+    const filtered = products.filter(prod => prod.name.toLowerCase().includes(value.toLowerCase()));
+
+    setFilteredProducts(filtered);
+  };
+
+  const resetAll = () => {
+    setFilteredProducts(products);
+    setSelectedUserId(null);
+    setQuery('');
+  };
+
+  const isVisibleProducts = filteredProducts.length === 0;
 
   return (
     <div className="section">
@@ -66,16 +70,19 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
-                // onClick={setSelectedUser(null)}
+                onClick={() => setFilteredProducts(products)}
               >
                 All
               </a>
+
               {usersFromServer.map(user => (
                 <a
                   data-cy="FilterUser"
                   href="#/"
+                  id={user.id}
                   key={Math.random()}
-                  // onClick={visibleProducts}
+                  onClick={() => handleChange(user.id)}
+                  className={selectedUserId === user.id ? 'is-active' : ''}
                 >
                   {user.name}
                 </a>
@@ -89,8 +96,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  onChange={event => setSearchInput(event.target.value)}
-                  value={searchInput}
+                  value={query}
+                  onChange={filterByquery}
                 />
 
                 <span className="icon is-left">
@@ -98,11 +105,11 @@ export const App = () => {
                 </span>
 
                 <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                   <button
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={() => setQuery('')}
                   />
                 </span>
               </p>
@@ -154,6 +161,7 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={resetAll}
               >
                 Reset all filters
               </a>
@@ -162,9 +170,13 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p>
+          {isVisibleProducts
+            && (
+            <p data-cy="NoMatchingMessage">
+              No products matching selected criteria
+            </p>
+            )
+          }
 
           <table
             data-cy="ProductTable"
@@ -223,18 +235,25 @@ export const App = () => {
             </thead>
 
             <tbody>
-              {productsFilteredBySearch && products.map(product => (
+              {filteredProducts.map(product => (
                 <tr data-cy="Product" key={Math.random()}>
                   <td className="has-text-weight-bold" data-cy="ProductId">
                     {product.id}
                   </td>
 
                   <td data-cy="ProductName">{product.name}</td>
-                  <td data-cy="ProductCategory">{product.categoryName}</td>
+                  <td data-cy="ProductCategory">
+                    {`${product.categoryIcon} - ${product.categoryName}`}
+                  </td>
 
                   <td
                     data-cy="ProductUser"
                     key={Math.random()}
+                    className={classNames({
+                      'has-text-link': product.userSex === 'm',
+                      'has-text-danger': product.userSex === 'f',
+                    })
+                    }
                   >
                     {product.userName}
                   </td>
