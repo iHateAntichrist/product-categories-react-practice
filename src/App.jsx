@@ -1,16 +1,26 @@
+/* eslint-disable jsx-a11y/accessible-emoji */
 import React from 'react';
 import './App.scss';
 
-// import usersFromServer from './api/users';
-// import categoriesFromServer from './api/categories';
-// import productsFromServer from './api/products';
+import usersFromServer from './api/users';
+import categoriesFromServer from './api/categories';
+import productsFromServer from './api/products';
 
-// const products = productsFromServer.map((product) => {
-//   const category = null; // find by product.categoryId
-//   const user = null; // find by category.ownerId
+const products = productsFromServer.map((product) => {
+  const category = categoriesFromServer.find(
+    categor => categor.id === product.categoryId,
+  );
 
-//   return null;
-// });
+  const user = usersFromServer.find(
+    person => person.id === category.ownerId,
+  );
+
+  return {
+    ...product,
+    categoryName: category.title,
+    userName: user.name,
+  };
+});
 
 export const App = () => (
   <div className="section">
@@ -192,7 +202,24 @@ export const App = () => (
           </thead>
 
           <tbody>
-            <tr data-cy="Product">
+            {products.map(product => (
+              <tr data-cy="Product" key={Math.random()}>
+                <td className="has-text-weight-bold" data-cy="ProductId">
+                  {product.id}
+                </td>
+
+                <td data-cy="ProductName">{product.name}</td>
+                <td data-cy="ProductCategory">{product.categoryName}</td>
+
+                <td
+                  data-cy="ProductUser"
+                  key={Math.random()}
+                >
+                  {product.userName}
+                </td>
+              </tr>
+            ))}
+            {/* <tr data-cy="Product">
               <td className="has-text-weight-bold" data-cy="ProductId">
                 1
               </td>
@@ -238,7 +265,7 @@ export const App = () => (
               >
                 Roma
               </td>
-            </tr>
+            </tr> */}
           </tbody>
         </table>
       </div>
