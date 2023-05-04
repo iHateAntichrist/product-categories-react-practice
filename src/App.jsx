@@ -24,6 +24,7 @@ const products = productsFromServer.map((product) => {
     categoryIcon: category.icon,
     userSex: user.sex,
     userId: user.id,
+    categoryTitle: category.title,
   };
 });
 
@@ -31,6 +32,7 @@ export const App = () => {
   const [query, setQuery] = useState('');
   const [filteredProducts, setFilteredProducts] = useState(products);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  // const [selectedProducts, setSelectedProducts] = useState(null);
 
   const handleChange = (userId) => {
     const filtered = products.filter(product => product.userId === userId);
@@ -56,6 +58,12 @@ export const App = () => {
   };
 
   const isVisibleProducts = filteredProducts.length === 0;
+
+  const filterByCategory = (categoryName) => {
+    const filteredBycategor = products.filter(category => category.categoryTitle === categoryName);
+
+    setFilteredProducts(filteredBycategor);
+  };
 
   return (
     <div className="section">
@@ -120,40 +128,22 @@ export const App = () => {
                 href="#/"
                 data-cy="AllCategories"
                 className="button is-success mr-6 is-outlined"
+                onClick={() => setFilteredProducts(products)}
               >
                 All
               </a>
 
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a>
+              {categoriesFromServer.map(category => (
+                <a
+                  data-cy="Category"
+                  className="button mr-2 my-1 is-info"
+                  href="#/"
+                  onClick={() => filterByCategory(category.title)}
+                  key={Math.random()}
+                >
+                  {category.title}
+                </a>
+              ))}
             </div>
 
             <div className="panel-block">
